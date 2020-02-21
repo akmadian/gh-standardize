@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+import argparse
 
 from github import Github, GithubException
 
@@ -175,5 +176,11 @@ class Standardize:
 # Create PR with file changes y/n
 #   Auto-merge? y/n
 # org/ user
-        
+"""
+parser = argparse.ArgumentParser(description='gh-standardize - A python tool for standardizing GitHub repos')
+parser.add_argument('configpath', type=str, nargs=1,
+                    help='The full or relative path to your gh-standardize config file')
+
+args = parser.parse_args()"""
+
 st = Standardize('77b1917c31f01762ca6f0ce6c8bbd6bbd0c51ced', 'config.example.json')

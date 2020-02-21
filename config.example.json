@@ -1,9 +1,10 @@
 {
+    "PRHEAD": "gh-standardize",
+    "PRBASE": "master",
+    "AUTOMERGE": true,
     "EXEMPT": {
         "REPOS": []
     },
-    "PRHEAD": "gh-standardize",
-    "PRBASE": "master",
     "TEMPLATES": [
         {
             "name": "CONTRIBUTING.md",
