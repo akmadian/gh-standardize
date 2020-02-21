@@ -1,5 +1,6 @@
 # gh-standardize
 A highly customizable Python tool that helps you standardize GitHub repositories.
+This is mostly useful for organizations who want to maintain a standardized configuration across all repositories.
 
 **Features:**
 - Standardize label names, colors, and descriptions
@@ -9,6 +10,10 @@ A highly customizable Python tool that helps you standardize GitHub repositories
 - Repository level configuration for opting out of, or creating custom rules.
 - Make standardization changes on a specific branch, with the option to autmatically create a PR to some other branch.
 
+**Requirements:**
+- Python 3
+- A GitHub API key (either organization or user)
+- pipenv
 
 ## Config File Schema
 **Master Config**
