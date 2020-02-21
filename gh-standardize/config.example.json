@@ -1,14 +1,24 @@
 {
-    "PRHEAD": "gh-standardize",
-    "PRBASE": "master",
-    "AUTOMERGE": true,
+    "PR": {
+        "ENABLED": true,
+        "PRHEAD": "gh-standardize",
+        "PRBASE": "master",
+        "AUTOMERGE": true,
+        "REQUESTREVIEWFROM": {
+            "USERS": [],
+            "TEAMS": []
+        },
+        "AUTOASSIGN": ["akmadian"],
+        "LABELS": ["bug"]
+    },
     "EXEMPT": {
-        "REPOS": []
+        "REPOS": [],
+        "BRANCHPROTECTION": []
     },
     "TEMPLATES": [
         {
             "name": "CONTRIBUTING.md",
-            "localPath": "templates/CONTRIBUTING.md",
+            "localPath": "https://raw.githubusercontent.com/creativecommons/cc-chooser/master/CONTRIBUTING.md",
             "targetPath": "./"
         },
         {
@@ -27,7 +37,13 @@
             "targetPath": "./"
         }
     ],
-    "PROTECTIONS": ["master"],
+    "PROTECTIONS": {
+        "BRANCHES": ["master"],
+        "MEASURES": {
+            "strict": true,
+            "contexts": []
+        }
+    },
     "LABELS": {
         "bug": {
             "color": "d73a4a",

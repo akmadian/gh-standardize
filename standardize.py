@@ -3,16 +3,89 @@ import json
 import requests
 import argparse
 
-from configparser import ConfigParser
-from repository import Repository
-from ghapi import GithubAPI
-from utils import GITHUB_RAW_URL_TEMPLATE
-
 from github import Github, GithubException
 
-LOGIN = 'akmadian'
+from test import Test
+
+USERNAME = 'akmadian'
 CREATEBRANCH = True
 AUTOMERGEPR = False
+
+class ConfigParser:
+    def __init__(self, path):
+        self.path = path
+        self.config = self.loadConfig()
+
+    def loadConfig(self):
+        with open(self.path) as f:
+            contents = json.load(f)
+            return contents
+
+class Repository:
+    def __init__(self, repoObject):
+        self.repoObject = repoObject
+        self.hasDotGithub = self.hasDotGithub()
+        self.repoConfig = self.hasRepoConfig()
+        self.EXEMPT = self.isExempt()
+        self.CHANGESMADE = True
+
+    def hasDotGithub(self):
+        try:
+            self.repoObject.get_contents('.github')
+        except GithubException:
+            print('Could not find .github')
+            return False
+
+        print('.github exists')
+        return True
+
+    def hasRepoConfig(self):
+        try:
+            self.repoObject.get_contents('.github/standardize.config.json')
+            contents = requests.get('https://raw.githubusercontent.com/akmadian/TESTREPO/master/.github/standardize.config.json')
+            return json.loads(contents.text)
+        except GithubException:
+            return None
+            print('Repo does not have custom config file')
+
+    def isExempt(self):
+        try:
+            if self.repoConfig is not None:
+                return self.repoConfig.EXEMPT
+        except AttributeError:
+            return False
+
+    def existingLabels(self, labels):
+        existingLabels = {}
+        for label in labels:
+            existingLabels[label.name] = {
+                'color': label.color,
+                'description': label.description,
+                'label_object': label
+            }
+        return existingLabels
+
+    def editLabel(self, labelObject, name, color, description):
+        labelObject.edit(name=name, color=color, description=description)
+
+    def createLabel(self, name, color, description):
+        self.repoObject.create_label(name=name, color=color, description=description)
+
+    def fileExists(self, fileName):
+        try:
+            return self.repoObject.get_contents(fileName)
+        except Exception: return False
+
+        return True
+
+    def createChangesPR(self, head, base):
+        print('Creating PR with changes. head={}, base={}'.format(head, base))
+        self.repoObject.create_pull(
+            title="Repo Standardization Changes",
+            body="TEST BODY",
+            head=head,
+            base=base
+        )
 
 class Standardize:
     def __init__(self, APItoken, configPath):
@@ -20,9 +93,12 @@ class Standardize:
         self.config = ConfigParser(configPath)
         self.repos = []
         self.CHANGESMADE = False # were changes made with commits?
-        self.github = Github(self.APItoken)
+        self.setGHInstance()
         self.printRepos()
         self.standardize()
+
+    def setGHInstance(self):
+        self.github = Github(self.APItoken)
 
     def printRepos(self):
         self.repos.append(Repository(self.github.get_repo('akmadian/TESTREPO')))
@@ -41,7 +117,8 @@ class Standardize:
 
             if (repo.CHANGESMADE):
                 repo.createChangesPR(
-                    PRCONFIG=self.config.config['PR']
+                    head=self.config.config['PRHEAD'],
+                    base=self.config.config['PRBASE']
                 )
 
     def standardizeLabels(self, repo):
@@ -89,35 +166,13 @@ class Standardize:
                     )
                     repo.CHANGESMADE = True
                 else:
-                    if (
-                        requests.get(
-                            GITHUB_RAW_URL_TEMPLATE(
-                                LOGIN, 
-                                repo.repoObject.name, 
-                                self.config.config['PR']['PRHEAD'], 
-                                template['name']
-                            )
-                        ).text == template['content']):
-                        print('{} - Current and local version have same contents. Skipping...'.format(template['name']))
-                        continue
-
                     print('Updating File "{}"'.format(template['name']))
                     repo.repoObject.update_file(
                         path=path,
                         message='Update {}'.format(template['name']),
-                        content=template['content'],
+                        content=open(template['localPath'], 'r').read(),
                         sha=file.sha
                     )
-        
-    def standardizeBranchProtection(self, repo):
-        print('Standardizing Branch Protection...')
-        for branchName in self.config.config['PROTECTIONS']:
-            if branchName in repo.repoConfig['IGNORE']['BRANCHPROTECTION'] or \
-                repo.repoObject.name in self.config.config['EXEMPT']['BRANCHPROTECTION']: continue
-
-            branch = repo.get_branch(branchName)
-            
-
 
 # ARG options
 # Create PR with file changes y/n
@@ -130,4 +185,5 @@ parser.add_argument('configpath', type=str, nargs=1,
 
 args = parser.parse_args()"""
 
-st = Standardize(open('apikey.txt', 'r').read().strip(), 'config.example.json')
+#st = Standardize('77b1917c31f01762ca6f0ce6c8bbd6bbd0c51ced', 'config.example.json')
+Test()
