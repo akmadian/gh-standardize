@@ -1,0 +1,11 @@
+{
+    "ISEXEMPT": true,
+    "IGNORE": {
+        "LABELS": [],
+        "TEMPLATES": [],
+        "BRANCHPROTECTION": []
+    },
+    "CUSTOM": {
+        
+    }
+}
